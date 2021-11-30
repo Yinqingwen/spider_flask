@@ -7,5 +7,5 @@ urllib3.disable_warnings()
 
 @app.route("/")
 def home():  
-    req = requests.get('https://grwsyw.bjgjj.gov.cn/ish/',verify=False)
+    req = requests.get('https://t66y.com/',verify=False)
     print(req.text)
