@@ -15,7 +15,7 @@ proxies = {
 
 #获取相应的网页内容函数
 def GetPage(url):
-    res = requests.get(url,verify=False) #,proxies = proxies,headers={'User-Agent': 'Chrome'})
+    res = requests.get(url,verify=False)
     #将网页编码强制设置为GBK
     res.encoding = "gbk"
     #获取网页内荣并返回
@@ -28,14 +28,10 @@ def GetMaxNumber(number):
     #返回最大页面数量
     return int(temp[1])
 
-#获取书籍页数据
-def GetArticle(data):
-    print()
-
 @app.route("/")
 def home():
     #此处为免翻墙地址，应注意被屏蔽情况  
-    url = "{}/{}".format(BaseUrl,'index.php') #https://cl.5837x.xyz/index.php/"
+    url = "{}/{}".format(BaseUrl,'index.php')
     #获取首页内容
     soup = GetPage(url)
     page_list=[]
@@ -43,8 +39,9 @@ def home():
     for link in soup.find_all('tr',attrs={'class': 'tr3 f_one'}):
         url = link.th.h2.a['href']
         start = link.th.h2.a['href'].find('=') + 1
+        number = int(url[start:])
         #创建字典，用于传递论坛信息
-        page_list.append( {'number': int(url[start:]),'title': link.th.h2.a.text,'detail': link.th.span.text} )
+        page_list.append( {'number': number,'title': link.th.h2.a.text,'detail': link.th.span.text} )
 
     return render_template("index.html",page_list = page_list)
 
@@ -76,8 +73,8 @@ def page(number):
     maxnumber = GetMaxNumber(soup.find('a',attrs={'class': 'w70'}).input['value'])
     #定义文章列表
     articles=[]
-    for x in range(1): #maxnumber
-        ArticlesUrl = "{}&search=&page={}".format(url,x+1)  #Articles https://cl.5837x.xyz/thread0806.php?fid=20&search=&page=3
+    for x in range(maxnumber):
+        ArticlesUrl = "{}&search=&page={}".format(url,x+1)
         soup = GetPage(ArticlesUrl)
         tbody = soup.find('tbody',attrs={'id': 'tbody'})
         trs = tbody.find_all('tr',attrs={'class': 'tr3 t_one tac'})
@@ -88,5 +85,5 @@ def page(number):
             #获取书目列表
             bookinfo = GetBookInfo(title,tspans)
             articles.append(bookinfo)
-            #print(bookinfo)
-    return str(articles)
+    
+    return render_template('booklist.html', articles = articles)
