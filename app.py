@@ -17,7 +17,7 @@ proxies = {
 def GetPage(url):
     res = requests.get(url,verify=False)
     #将网页编码强制设置为GBK
-    res.encoding = "gbk"
+    res.encoding = "utf-8"
     #获取网页内荣并返回
     return BeautifulSoup(res.text)
 
@@ -27,6 +27,23 @@ def GetMaxNumber(number):
     temp = str(number).split('/')
     #返回最大页面数量
     return int(temp[1])
+
+#获取每个论坛的页面数量
+def GetPageNumber(number):
+    #根据论坛编号获取论坛信息
+    url = "{}/thread0806.php?fid={}".format(BaseUrl,number)
+    #获取论坛页面
+    soup = GetPage(url)
+    #获取该论坛总页数
+    pagenumber = 0
+    pagecontor = ''
+    try:
+        pagecontor = soup.find('a',attrs={'class': 'w70'}).input['value']
+    except:
+        pagecontor = '0/0'
+    
+    pagenumber = GetMaxNumber(pagecontor)
+    return pagenumber
 
 @app.route("/")
 def home():
@@ -41,7 +58,10 @@ def home():
         start = link.th.h2.a['href'].find('=') + 1
         number = int(url[start:])
         #创建字典，用于传递论坛信息
-        page_list.append( {'number': number,'title': link.th.h2.a.text,'detail': link.th.span.text} )
+        page_list.append( {'number': number,'title': link.th.h2.a.text,'detail': link.th.span.text,"pagenumber": 0} )
+    #准备获取每个论坛的页数
+    for page in page_list:
+        page['pagenumber'] = GetPageNumber(page['number'])
 
     return render_template("index.html",page_list = page_list)
 

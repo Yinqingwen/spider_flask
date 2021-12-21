@@ -40,25 +40,80 @@
 <body>
 
 	<main>
-		<h1 class="visually-hidden">Sidebars examples</h1>
-
 		<div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
-			<a href="/" class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
-				<svg class="bi me-2" width="30" height="24">
-					<use xlink:href="#bootstrap" />
-				</svg>
+			<a href="/"
+				class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
 				<span class="fs-5 fw-semibold">论坛工具</span>
 			</a>
-			<div class="list-group list-group-flush border-bottom scrollarea">
+			<div class="accordion accordion-flush" id="accordionFlushExample">
 				{% for page in page_list %}
-					<a href="/page/{{page.number}}" class="list-group-item list-group-item-action py-3 lh-tight" aria-current="false">
-						<div class="d-flex w-100 align-items-center justify-content-between">
-							<strong class="mb-1">{{page.title}}</strong>
-						<small>{{page.number}}</small>
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="flush-heading{{page.number}}">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+							data-bs-target="#flush-collapse{{page.number}}" aria-expanded="false" aria-controls="flush-collapse{{page.number}}">
+							<strong>{{ page.title }}</strong>
+							-#{{ page.number }}
+							&nbsp;&nbsp;&nbsp;&nbsp;
+							<small>{{ page.detail }}</small>
+							&nbsp;&nbsp;&nbsp;&nbsp;
+							<small>子论坛分页数：{{ page.pagenumber }}</small>
+						</button>
+					</h2>
+					<div id="flush-collapse{{page.number}}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{page.number}}"
+						data-bs-parent="#accordionFlushExample">
+						<div class="hstack gap-3" style="display: inline-block">
+							{% for pageid in range(page.pagenumber) %}
+							<!--div class="bg-light border">
+								{{pageid + 1}}
+							</div-->
+							<div>
+								{{pageid + 1}}
+								<!--a style="margin: .5em; padding: .5em;">{{pageid + 1}}</a-->
+							</div>
+														
+							<!--a class="bg-light border" style="padding: 10,5; width: 3em; text-align: right;">{{pageid + 1}}</a-->							
+							{% endfor %}
+						</div>
+						<!--div class="accordion-body">Placeholder content for this accordion, which is intended to
+							demonstrate the <code>.accordion-flush</code> class. This is the first item's accordion
+							body.</div-->
 					</div>
-					<div class="col-10 mb-1 small">{{page.detail}}</div>
-				</a>
+				</div>
 				{% endfor %}
+			</div>
+			<div class="list-group list-group-flush border-bottom scrollarea">
+				<!--
+				{% for page in page_list %}
+				-->
+				<!--div class="d-flex w-100 align-items-center justify-content-between">
+					<strong class="mb-1">{{page.title}}/{{page.number}}</strong>
+					<small>{{page.pagenumber}}</small>
+				</div>
+				<div class="col-10 mb-1 small">{{page.detail}}</div>
+				<nav aria-label="Page navigation example">
+					<ul class="pagination justify-content-center">
+						<li class="page-item">
+							<a class="page-link" href="#" aria-label="Previous">
+								<span aria-hidden="true">&laquo;</span>
+							</a>
+						</li>
+						{% for id in range(page.pagenumber) %}
+						<li class="page-item"><a class="page-link" href="#">2</a></li>
+						<li class="page-item"><a class="page-link" href="page/{{page.number}}/{{id}}" target="_blank">{{id}}</a></li>
+						{% endfor %}
+						<li class="page-item"><a class="page-link" href="#">1</a></li>
+						<li class="page-item"><a class="page-link" href="#">2</a></li>
+						<li class="page-item"><a class="page-link" href="#">3</a></li>
+						<li class="page-item">
+							<a class="page-link" href="#" aria-label="Next">
+								<span aria-hidden="true">&raquo;</span>
+							</a>
+						</li>
+					</ul>
+				</nav-->
+				<!--
+				{% endfor %}
+				-->
 			</div>
 		</div>
 
