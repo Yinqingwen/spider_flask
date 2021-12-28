@@ -61,22 +61,12 @@
 					</h2>
 					<div id="flush-collapse{{page.number}}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{page.number}}"
 						data-bs-parent="#accordionFlushExample">
-						<div class="hstack gap-3" style="display: inline-block">
+						<div class="hstack gap-3 container-fluid" style="border: solid 1px #333;">
 							{% for pageid in range(page.pagenumber) %}
-							<!--div class="bg-light border">
-								{{pageid + 1}}
-							</div-->
-							<div>
-								{{pageid + 1}}
-								<!--a style="margin: .5em; padding: .5em;">{{pageid + 1}}</a-->
-							</div>
-														
-							<!--a class="bg-light border" style="padding: 10,5; width: 3em; text-align: right;">{{pageid + 1}}</a-->							
+							<div style="height: 2em;width: 4em;display: inline-block;"></div>
+							<!--a href="/page/{{page.number}}" target="_blank" style="margin: .5em; padding: .5em;text-align: right;">{{pageid + 1}}</a-->
 							{% endfor %}
 						</div>
-						<!--div class="accordion-body">Placeholder content for this accordion, which is intended to
-							demonstrate the <code>.accordion-flush</code> class. This is the first item's accordion
-							body.</div-->
 					</div>
 				</div>
 				{% endfor %}

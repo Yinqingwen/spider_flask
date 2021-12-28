@@ -1,17 +1,36 @@
+from typing import Pattern
 from flask import Flask, render_template
 from bs4 import BeautifulSoup
 import requests
+import re
 from werkzeug.datastructures import Range
 
 app = Flask(__name__)
 
 #此处为免翻墙地址，应注意被屏蔽情况
+PublishPage = 'http://www.gfqzkep.com/'
 BaseUrl = 'https://cl.5837x.xyz'
-proxy = '127.0.0.1:50461' #'192.168.11.134:50461'
-proxies = {
-    'http': 'http://' + proxy,
-    'https': 'https://' + proxy
-}
+
+#获取发布页所列出的地址
+def GetPublishPages():
+    #免翻墙地址列表
+    BaseUrls = []
+    #获取发布页内容
+    res = requests.get(PublishPage)
+    #检测获取结果
+    if (res.status_code == 200):
+        #将网页代码设置为utf-8
+        res.encoding = "utf-8"
+        #解析网页内容
+        soup = BeautifulSoup(res.text,'lxml')
+        #获取JS脚本
+        scripttext = soup.select("body script")
+        vartext = re.findall(r"var(.+)b", scripttext)
+        print(vartext)
+    else:
+        print(res.status_code)
+    
+    return BaseUrls
 
 #获取相应的网页内容函数
 def GetPage(url):
@@ -47,6 +66,9 @@ def GetPageNumber(number):
 
 @app.route("/")
 def home():
+    #首先获取发布页地址列表
+    GetPublishPages()
+    """
     #此处为免翻墙地址，应注意被屏蔽情况  
     url = "{}/{}".format(BaseUrl,'index.php')
     #获取首页内容
@@ -64,6 +86,8 @@ def home():
         page['pagenumber'] = GetPageNumber(page['number'])
 
     return render_template("index.html",page_list = page_list)
+"""
+    return '1234'
 
 #获取书籍数据
 def GetBookInfo(title,span_list):
