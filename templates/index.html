@@ -61,9 +61,11 @@
 					</h2>
 					<div id="flush-collapse{{page.number}}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{page.number}}"
 						data-bs-parent="#accordionFlushExample">
-						<div class="hstack gap-3 container-fluid" style="border: solid 1px #333;">
+						<div class="container-fluid">
 							{% for pageid in range(page.pagenumber) %}
-							<div style="height: 2em;width: 4em;display: inline-block;"></div>
+							<div style="width:2em;padding:.2em;text-align:center;display:inline-block;">
+								<a href="/page/{{page.number}}/{{pageid+1}}">{{pageid + 1}}</a>
+							</div>
 							<!--a href="/page/{{page.number}}" target="_blank" style="margin: .5em; padding: .5em;text-align: right;">{{pageid + 1}}</a-->
 							{% endfor %}
 						</div>

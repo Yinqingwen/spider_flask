@@ -7,14 +7,15 @@ from werkzeug.datastructures import Range
 
 app = Flask(__name__)
 
-#此处为免翻墙地址，应注意被屏蔽情况
+#地址发布页
 PublishPage = 'http://www.gfqzkep.com/'
-BaseUrl = 'https://cl.5837x.xyz'
 
 #获取发布页所列出的地址
 def GetPublishPages():
-    #免翻墙地址列表
+    #此处为免翻墙地址列表
     BaseUrls = []
+    #地址基础
+    BaseAddress = ['x', 'y', 'z']
     #获取发布页内容
     res = requests.get(PublishPage)
     #检测获取结果
@@ -25,11 +26,18 @@ def GetPublishPages():
         soup = BeautifulSoup(res.text,'lxml')
         #获取JS脚本
         scripttext = soup.select("body script")
-        vartext = re.findall(r"var(.+)b", scripttext)
-        print(vartext)
+        #获得域名基础部分
+        urltext = re.findall(r"dn = \'(.+)\'", str(scripttext))[0]
+        #获取免翻墙地址列表
+        for base in BaseAddress:
+            #依据基础规则生成免翻墙地址
+            baseurl = "https://cl.{}{}.xyz".format(urltext,base)
+            #加入地址列表中
+            BaseUrls.append(baseurl)
     else:
-        print(res.status_code)
-    
+        #报错
+        print('访问发布页错误，请检查！！！')
+    #返回地址列表
     return BaseUrls
 
 #获取相应的网页内容函数
@@ -48,7 +56,7 @@ def GetMaxNumber(number):
     return int(temp[1])
 
 #获取每个论坛的页面数量
-def GetPageNumber(number):
+def GetPageNumber(BaseUrl, number):
     #根据论坛编号获取论坛信息
     url = "{}/thread0806.php?fid={}".format(BaseUrl,number)
     #获取论坛页面
@@ -67,8 +75,12 @@ def GetPageNumber(number):
 @app.route("/")
 def home():
     #首先获取发布页地址列表
-    GetPublishPages()
-    """
+    BaseUrls = GetPublishPages()
+    for BaseUrl in BaseUrls:
+        res = requests.get(BaseUrl)
+        if (res.status_code == 200):
+            break
+
     #此处为免翻墙地址，应注意被屏蔽情况  
     url = "{}/{}".format(BaseUrl,'index.php')
     #获取首页内容
@@ -83,11 +95,9 @@ def home():
         page_list.append( {'number': number,'title': link.th.h2.a.text,'detail': link.th.span.text,"pagenumber": 0} )
     #准备获取每个论坛的页数
     for page in page_list:
-        page['pagenumber'] = GetPageNumber(page['number'])
+        page['pagenumber'] = GetPageNumber(BaseUrl,page['number'])
 
     return render_template("index.html",page_list = page_list)
-"""
-    return '1234'
 
 #获取书籍数据
 def GetBookInfo(title,span_list):
