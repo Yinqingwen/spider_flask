@@ -9,11 +9,13 @@ app = Flask(__name__)
 
 #地址发布页
 PublishPage = 'http://www.gfqzkep.com/'
+BaseUrls = []
+BaseURL= ''
 
 #获取发布页所列出的地址
 def GetPublishPages():
     #此处为免翻墙地址列表
-    BaseUrls = []
+    global BaseUrls
     #地址基础
     BaseAddress = ['x', 'y', 'z']
     #获取发布页内容
@@ -37,8 +39,19 @@ def GetPublishPages():
     else:
         #报错
         print('访问发布页错误，请检查！！！')
-    #返回地址列表
-    return BaseUrls
+
+#获取网站首页函数
+def GetUrl():
+    global BaseUrls
+    global BaseURL
+
+    if (BaseUrls == []):
+        GetPublishPages()
+    for baseurl in BaseUrls:
+        res = requests.get(baseurl)
+        if (res.status_code == 200):
+            BaseURL = baseurl
+            break
 
 #获取相应的网页内容函数
 def GetPage(url):
@@ -46,7 +59,7 @@ def GetPage(url):
     #将网页编码强制设置为GBK
     res.encoding = "utf-8"
     #获取网页内荣并返回
-    return BeautifulSoup(res.text)
+    return BeautifulSoup(res.text, features="lxml")
 
 #获取论坛下最大页数
 def GetMaxNumber(number):
@@ -72,20 +85,17 @@ def GetPageNumber(BaseUrl, number):
     pagenumber = GetMaxNumber(pagecontor)
     return pagenumber
 
+#首页
 @app.route("/")
 def home():
+    global BaseURL
+    page_list=[]
     #首先获取发布页地址列表
-    BaseUrls = GetPublishPages()
-    for BaseUrl in BaseUrls:
-        res = requests.get(BaseUrl)
-        if (res.status_code == 200):
-            break
-
-    #此处为免翻墙地址，应注意被屏蔽情况  
-    url = "{}/{}".format(BaseUrl,'index.php')
+    GetUrl()
+    url = "{}/{}".format(BaseURL,'index.php')
     #获取首页内容
     soup = GetPage(url)
-    page_list=[]
+    
     #获取首页上所有论坛信息
     for link in soup.find_all('tr',attrs={'class': 'tr3 f_one'}):
         url = link.th.h2.a['href']
@@ -95,8 +105,7 @@ def home():
         page_list.append( {'number': number,'title': link.th.h2.a.text,'detail': link.th.span.text,"pagenumber": 0} )
     #准备获取每个论坛的页数
     for page in page_list:
-        page['pagenumber'] = GetPageNumber(BaseUrl,page['number'])
-
+        page['pagenumber'] = GetPageNumber(BaseURL,page['number'])
     return render_template("index.html",page_list = page_list)
 
 #获取书籍数据
@@ -117,27 +126,28 @@ def GetBookInfo(title,span_list):
         bookinfo['Number'] = int(temp1[1].split('=')[1])
     return bookinfo
 
-@app.route("/page/<int:number>")
-def page(number):
-    #根据论坛编号获取论坛信息
-    url = "{}/thread0806.php?fid={}".format(BaseUrl,number)
-    #获取论坛页面
-    soup = GetPage(url)
-    #获取该论坛总页数
-    maxnumber = GetMaxNumber(soup.find('a',attrs={'class': 'w70'}).input['value'])
+#论坛版块
+@app.route("/board/<int:number>/<int:pagenumber>")
+def board(number,pagenumber):
     #定义文章列表
     articles=[]
-    for x in range(maxnumber):
-        ArticlesUrl = "{}&search=&page={}".format(url,x+1)
-        soup = GetPage(ArticlesUrl)
-        tbody = soup.find('tbody',attrs={'id': 'tbody'})
-        trs = tbody.find_all('tr',attrs={'class': 'tr3 t_one tac'})
-        for tr in trs:
+    global BaseURL
+    print(BaseURL)
+    #根据论坛编号获取论坛信息
+    url = "{}/thread0806.php?fid={}&search=&page={}".format(BaseURL,number,pagenumber)
+    #获取论坛页面
+    soup = GetPage(url)
+
+    tbody = soup.find('tbody',attrs={'id': 'tbody'})
+    trs = tbody.find_all('tr',attrs={'class': 'tr3 t_one tac'})
+    for tr in trs:
+        print(tr)
+    """
             #获取书目名称
             title = tr.h3.a.text
             tspans = tr.find_all('span',attrs={'style': 'font-size:7pt;font-family:verdana;'})
             #获取书目列表
             bookinfo = GetBookInfo(title,tspans)
             articles.append(bookinfo)
-    
+    """
     return render_template('booklist.html', articles = articles)
