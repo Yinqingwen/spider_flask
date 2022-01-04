@@ -106,48 +106,100 @@ def home():
     #准备获取每个论坛的页数
     for page in page_list:
         page['pagenumber'] = GetPageNumber(BaseURL,page['number'])
+    #返回子论坛信息
     return render_template("index.html",page_list = page_list)
 
 #获取书籍数据
-def GetBookInfo(title,span_list):
+#title-内容题目
+#span-list 页数列表
+def GetContentInfo(title,span_list):
     #创建数据列表
-    bookinfo = dict()
+    Contentinfo = dict()
     #书目名称
-    bookinfo['Title'] = title
+    Contentinfo['Title'] = title
+    #获取页数
     for span in span_list:
         links = span.find_all('a')
+        #获取最后页数
         for link in links:
             continue
         temp = link['href'].split('?')[1]
         temp1 = temp.split('&')
         #书目ID
-        bookinfo['Id'] = int(temp1[0].split('=')[1])
+        Contentinfo['Id'] = int(temp1[0].split('=')[1])
         #书目页数
-        bookinfo['Number'] = int(temp1[1].split('=')[1])
-    return bookinfo
+        Contentinfo['Number'] = int(temp1[1].split('=')[1])
+    #返回内容信息
+    return Contentinfo
 
 #论坛版块
+#number 子论坛编号
+#pagenumber 页数编号
 @app.route("/board/<int:number>/<int:pagenumber>")
 def board(number,pagenumber):
     #定义文章列表
     articles=[]
     global BaseURL
-    print(BaseURL)
+    #定义变量
+    ContentTitle = ''   #内容标题
+    ContentId = 0       #内容ID
+    ContentPage = 0     #内容页数，默认为1
+    #如果基本地址为空，获取地址
+    if (BaseURL == ''):
+        GetUrl()
     #根据论坛编号获取论坛信息
     url = "{}/thread0806.php?fid={}&search=&page={}".format(BaseURL,number,pagenumber)
     #获取论坛页面
     soup = GetPage(url)
-
+    #获取内容名称
     tbody = soup.find('tbody',attrs={'id': 'tbody'})
     trs = tbody.find_all('tr',attrs={'class': 'tr3 t_one tac'})
     for tr in trs:
-        print(tr)
-    """
-            #获取书目名称
-            title = tr.h3.a.text
-            tspans = tr.find_all('span',attrs={'style': 'font-size:7pt;font-family:verdana;'})
-            #获取书目列表
-            bookinfo = GetBookInfo(title,tspans)
-            articles.append(bookinfo)
-    """
+        #获取内容名称
+        title = tr.h3.a.text
+        #获取该内容信息
+        #read.php?tid=4856302&amp;page=1&amp;fpage=1
+        tspans = tr.find_all('span',attrs={'style': 'font-size:7pt;font-family:verdana;'})
+        if (tspans == []):
+            #只有一页内容
+            #获取内容url
+            contenturl = tr.h3.a['href']
+            urltext = re.findall(r"\/(.+).html", str(contenturl))[0]
+            ContentId = str(urltext.split('/')[2])
+            ContentPage = 1
+        else:
+            #获取页数
+            for span in tspans:
+                links = span.find_all('a')
+                #获取最后页数
+                for link in links:
+                    continue
+                temp = link['href'].split('?')[1]
+                temp1 = temp.split('&')
+                #内容ID
+                ContentId = int(temp1[0].split('=')[1])
+                #内容页数
+                ContentPage = int(temp1[1].split('=')[1])
+                
+        #获取内容信息
+        contentinfo = GetContentInfo(title,tspans)
+        articles.append(contentinfo)
+
     return render_template('booklist.html', articles = articles)
+
+#https://cl.2062x.xyz/htm_data/2201/20/4651187.html
+#显示书籍
+@app.route("/DisplayBook/<int:Id>/<int:Number>")
+def DisplayBook(Id,Number):
+    global BaseURL
+    if (BaseURL == ''):
+        GetUrl()
+    if (Id <= 0):
+        return '书籍编号错误！！！'
+    else:
+        url = "{}/htm_data/2201"
+        print(type(Number))
+        for pagenumber in range(Number):
+            print(pagenumber)
+    
+    return 'DisplayBook'
