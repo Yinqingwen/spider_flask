@@ -112,23 +112,40 @@ def home():
 #获取书籍数据
 #title-内容题目
 #span-list 页数列表
-def GetContentInfo(title,span_list):
+def GetContentInfo(tr):
     #创建数据列表
     Contentinfo = dict()
+    #定义变量
+    ContentTitle = ''   #内容标题
+    ContentId = 0       #内容ID
+    ContentPage = 0     #内容页数，默认为1
     #书目名称
-    Contentinfo['Title'] = title
-    #获取页数
-    for span in span_list:
-        links = span.find_all('a')
-        #获取最后页数
-        for link in links:
-            continue
-        temp = link['href'].split('?')[1]
-        temp1 = temp.split('&')
-        #书目ID
-        Contentinfo['Id'] = int(temp1[0].split('=')[1])
-        #书目页数
-        Contentinfo['Number'] = int(temp1[1].split('=')[1])
+    ContentTitle = tr.h3.a.text
+    tspans = tr.find_all('span',attrs={'style': 'font-size:7pt;font-family:verdana;'})
+    if (tspans == []):
+        #只有一页内容
+        #获取内容url
+        contenturl = tr.h3.a['href']
+        urltext = re.findall(r"\/(.+).html", str(contenturl))[0]
+        ContentId = str(urltext.split('/')[2])
+        ContentPage = 1
+    else:
+        #获取页数
+        for span in tspans:
+            links = span.find_all('a')
+            #获取最后页数
+            for link in links:
+                continue
+            temp = link['href'].split('?')[1]
+            temp1 = temp.split('&')
+            #内容ID
+            ContentId = int(temp1[0].split('=')[1])
+            #内容页数
+            ContentPage = int(temp1[1].split('=')[1])
+
+    Contentinfo['Title'] = ContentTitle
+    Contentinfo['Id'] = ContentId
+    Contentinfo['Number'] = ContentPage
     #返回内容信息
     return Contentinfo
 
@@ -140,10 +157,6 @@ def board(number,pagenumber):
     #定义文章列表
     articles=[]
     global BaseURL
-    #定义变量
-    ContentTitle = ''   #内容标题
-    ContentId = 0       #内容ID
-    ContentPage = 0     #内容页数，默认为1
     #如果基本地址为空，获取地址
     if (BaseURL == ''):
         GetUrl()
@@ -155,35 +168,7 @@ def board(number,pagenumber):
     tbody = soup.find('tbody',attrs={'id': 'tbody'})
     trs = tbody.find_all('tr',attrs={'class': 'tr3 t_one tac'})
     for tr in trs:
-        #获取内容名称
-        title = tr.h3.a.text
-        #获取该内容信息
-        #read.php?tid=4856302&amp;page=1&amp;fpage=1
-        tspans = tr.find_all('span',attrs={'style': 'font-size:7pt;font-family:verdana;'})
-        if (tspans == []):
-            #只有一页内容
-            #获取内容url
-            contenturl = tr.h3.a['href']
-            urltext = re.findall(r"\/(.+).html", str(contenturl))[0]
-            ContentId = str(urltext.split('/')[2])
-            ContentPage = 1
-        else:
-            #获取页数
-            for span in tspans:
-                links = span.find_all('a')
-                #获取最后页数
-                for link in links:
-                    continue
-                temp = link['href'].split('?')[1]
-                temp1 = temp.split('&')
-                #内容ID
-                ContentId = int(temp1[0].split('=')[1])
-                #内容页数
-                ContentPage = int(temp1[1].split('=')[1])
-                
-        #获取内容信息
-        contentinfo = GetContentInfo(title,tspans)
-        articles.append(contentinfo)
+        articles.append(GetContentInfo(tr))
 
     return render_template('booklist.html', articles = articles)
 

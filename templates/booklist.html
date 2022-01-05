@@ -16,59 +16,29 @@
 		integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
 		crossorigin="anonymous"></script>
 
-	<style>
-		.bd-placeholder-img {
-			font-size: 1.125rem;
-			text-anchor: middle;
-			-webkit-user-select: none;
-			-moz-user-select: none;
-			user-select: none;
-		}
-
-		@media (min-width: 768px) {
-			.bd-placeholder-img-lg {
-				font-size: 3.5rem;
-			}
-		}
-	</style>
-
-
 	<!-- Custom styles for this template -->
-	<link href="sidebars.css" rel="stylesheet">
+	<!--link href="sidebars.css" rel="stylesheet"-->
 </head>
 
 <body>
-
-	<main>
-		<h1 class="visually-hidden">Sidebars examples</h1>
-
-		<div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
-			<a href="/" class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
-				<svg class="bi me-2" width="30" height="24">
-					<use xlink:href="#bootstrap" />
-				</svg>
-				<span class="fs-5 fw-semibold">论坛工具</span>
-			</a>
-			<div class="list-group list-group-flush border-bottom scrollarea">
-				{% for article in articles %}
-					<a href="/page" class="list-group-item list-group-item-action py-3 lh-tight" aria-current="false">
-						<div class="d-flex w-100 align-items-center justify-content-between">
-							<strong class="mb-1">{{article.title}}</strong>
-						<small>{{article.id}}</small>
+	<div class="container">
+		<ol class="list-group list-group-numbered">
+			{% for book in articles %}
+			<li class="list-group-item d-flex justify-content-between align-items-start">
+				<div class="ms-2 me-auto">
+					<div class="fw-bold">
+						<a target="_blank" href="/DisplayBook/{{book.Id}}/{{book.Number}}" style="text-decoration: none;">{{book.Title}}-<small>{{book.Id}}</small></a>
 					</div>
-					<div class="col-10 mb-1 small">{{article.number}}</div>
-				</a>
-				{% endfor %}
-			</div>
-		</div>
+				</div>
+				<span class="badge bg-primary rounded-pill">{{book.Number}}</span>
+			</li>
+			{% endfor %}
+		</ol>
+	</div>
 
-		<div class="b-example-divider"></div>
-	</main>
+	<!--script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
 
-
-	<script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
-
-	<script src="sidebars.js"></script>
+	<script src="sidebars.js"></script-->
 </body>
 
 </html>
