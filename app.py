@@ -112,14 +112,14 @@ def home():
 #获取书籍数据
 #title-内容题目
 #span-list 页数列表
-def GetContentInfo(tr):
+def GetContentInfo(BoardId,tr):
     #创建数据列表
     Contentinfo = dict()
     #定义变量
     ContentTitle = ''   #内容标题
     ContentId = 0       #内容ID
     ContentPage = 0     #内容页数，默认为1
-    #书目名称
+    #内容名称
     ContentTitle = tr.h3.a.text
     tspans = tr.find_all('span',attrs={'style': 'font-size:7pt;font-family:verdana;'})
     if (tspans == []):
@@ -143,9 +143,11 @@ def GetContentInfo(tr):
             #内容页数
             ContentPage = int(temp1[1].split('=')[1])
 
+    Contentinfo['BoardId'] = BoardId
     Contentinfo['Title'] = ContentTitle
     Contentinfo['Id'] = ContentId
     Contentinfo['Number'] = ContentPage
+
     #返回内容信息
     return Contentinfo
 
@@ -168,23 +170,24 @@ def board(number,pagenumber):
     tbody = soup.find('tbody',attrs={'id': 'tbody'})
     trs = tbody.find_all('tr',attrs={'class': 'tr3 t_one tac'})
     for tr in trs:
-        articles.append(GetContentInfo(tr))
+        articles.append(GetContentInfo(number,tr))
 
-    return render_template('booklist.html', articles = articles)
+    return render_template('contentlist.html', articles = articles)
 
 #https://cl.2062x.xyz/htm_data/2201/20/4651187.html
+#https://cl.2062x.xyz/read.php?tid=4855913&page=1&fpage=1
 #显示书籍
-@app.route("/DisplayBook/<int:Id>/<int:Number>")
-def DisplayBook(Id,Number):
+@app.route("/Display/<int:BoardId>/<int:Id>/<int:Number>")
+def Display(BoardId,Id,Number):
     global BaseURL
     if (BaseURL == ''):
         GetUrl()
     if (Id <= 0):
         return '书籍编号错误！！！'
-    else:
-        url = "{}/htm_data/2201"
-        print(type(Number))
-        for pagenumber in range(Number):
-            print(pagenumber)
+    
+    for page in range(Number):
+        url = "{}/read.php?tid={}&page={}&fpage=1".format(BaseURL,Id,page+1)
+        soup = GetPage(url)
+        print(soup)
     
     return 'DisplayBook'

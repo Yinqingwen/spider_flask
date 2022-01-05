@@ -23,14 +23,14 @@
 <body>
 	<div class="container">
 		<ol class="list-group list-group-numbered">
-			{% for book in articles %}
+			{% for content in articles %}
 			<li class="list-group-item d-flex justify-content-between align-items-start">
 				<div class="ms-2 me-auto">
 					<div class="fw-bold">
-						<a target="_blank" href="/DisplayBook/{{book.Id}}/{{book.Number}}" style="text-decoration: none;">{{book.Title}}-<small>{{book.Id}}</small></a>
+						<a target="_blank" href="/Display/{{content.BoardId}}/{{content.Id}}/{{content.Number}}" style="text-decoration: none;">{{content.Title}}-<small>{{content.Id}}</small></a>
 					</div>
 				</div>
-				<span class="badge bg-primary rounded-pill">{{book.Number}}</span>
+				<span class="badge bg-primary rounded-pill">{{content.Number}}</span>
 			</li>
 			{% endfor %}
 		</ol>
